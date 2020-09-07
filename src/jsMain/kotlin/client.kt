@@ -31,6 +31,7 @@ object page {
     val prevBtn by lazy { button("prevBtn") }
     val nextBtn by lazy { button("nextBtn") }
     val resetBtn by lazy { button("resetBtn") }
+    val deleteBtn by lazy { button("deleteBtn") }
     val intervalMsec: Int get() = msecInput.value.toInt()
 }
 
@@ -152,6 +153,12 @@ class EventShow(val day: ApiDay, val event: ApiEvent) {
         page.nextBtn.onclick = { nextClick() }
         page.maskCheckBox.onclick = { fromBeginning() }
         page.resetBtn.onclick = { fromBeginning() }
+        page.deleteBtn.onclickExt = { deleteEvent() }
+    }
+
+    private suspend fun deleteEvent() {
+        if (window.confirm("Are you sure?"))
+            api.New(ApiDeleteEvent(event.firstFileName))
     }
 
 

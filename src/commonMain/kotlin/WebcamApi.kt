@@ -12,7 +12,7 @@ data class LoginResponse(val success: Boolean, val message: String)
 
 
 @Serializable
-data class SummaryRequest(val ignore: String = "") : HasResponse<SummaryResponse>
+data class SummaryRequest(val ignore: Int = 0) : HasResponse<SummaryResponse>
 
 
 @Serializable
@@ -29,3 +29,10 @@ data class EventRequest(val firstFileName: String) : HasResponse<ApiEventSummary
 
 @Serializable
 data class ApiEventSummary(val files: List<String>)
+
+@Serializable
+data class ApiDeleteResponse(val ignore: Int = 0)
+
+@Serializable
+data class ApiDeleteEvent(val firstFileName: String) : HasResponse<ApiDeleteResponse>
+

@@ -114,4 +114,5 @@ fun main(args: Array<String>) {
 private fun ApiServer.registerApi() {
     register<SummaryRequest, SummaryResponse> { SummaryResponse(webcam.summary()) }
     register<EventRequest, ApiEventSummary> { webcam.eventSummary(it.firstFileName) }
+    register<ApiDeleteEvent, ApiDeleteResponse> { webcam.deleteEvent(it.firstFileName); ApiDeleteResponse() }
 }

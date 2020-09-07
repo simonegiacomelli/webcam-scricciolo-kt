@@ -34,6 +34,11 @@ class Webcam(private val root: File) {
         return ApiEventSummary(list)
     }
 
+    fun deleteEvent(filename: String) {
+        val eventRoot = fileMap[filename] ?: error("event not found for file $filename")
+        eventRoot.root.deleteRecursively()
+    }
+
     constructor(pathname: String) : this(File(pathname))
 
     val days = list(root).map { Day(it) }

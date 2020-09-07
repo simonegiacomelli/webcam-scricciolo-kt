@@ -1,10 +1,28 @@
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertSame
-import kotlin.test.fail
+import java.io.File
+import kotlin.test.*
 
 internal class WebcamTest {
     val pathname = "./src/jvmTest/resources/test_files/flat_files"
+
+    object Temp {
+        private val directories = mutableListOf<File>()
+        fun dir(skip: Boolean = false): File {
+            val res = createTempDir()
+            if (!skip) directories.add(res)
+            return res
+        }
+
+        fun clean() {
+            directories.forEach {
+                it.deleteRecursively()
+            }
+        }
+    }
+
+    @AfterTest
+    fun afterTest() {
+        Temp.clean()
+    }
 
     @Test
     fun listDays() {
@@ -65,4 +83,15 @@ internal class WebcamTest {
         assertEquals(expected, target.eventSummary("CAM1_805-20200830051636-01.jpg").files)
     }
 
+    @Test
+    fun api_deleteEvent() {
+        val root = Temp.dir()
+//        println("file://$root")
+        File(pathname).copyRecursively(root)
+        val folder = root.resolve("20200830/804")
+        assertTrue(folder.exists())
+        val target = Webcam(root)
+        target.deleteEvent("CAM1_804-20200830051609-01.jpg")
+        assertFalse(folder.exists())
+    }
 }
