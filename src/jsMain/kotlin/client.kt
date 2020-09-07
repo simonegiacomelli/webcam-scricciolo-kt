@@ -9,7 +9,6 @@ import org.w3c.dom.HTMLProgressElement
 import org.w3c.dom.HTMLSpanElement
 import org.w3c.dom.events.Event
 import kotlin.math.ceil
-import kotlin.math.round
 
 
 fun main() {
@@ -31,6 +30,7 @@ object page {
     val maskCheckBox by lazy { document.getElementById("mask_images") as HTMLInputElement }
     val prevBtn by lazy { button("prevBtn") }
     val nextBtn by lazy { button("nextBtn") }
+    val resetBtn by lazy { button("resetBtn") }
     val intervalMsec: Int get() = msecInput.value.toInt()
 }
 
@@ -44,6 +44,7 @@ fun onload(e: Event) {
 
         val resp = api.New(SummaryRequest())
         resp.payload.forEach { day ->
+            page.days_div.appendChild(br())
             page.days_div.appendChild(div().also { it.innerHTML = day.name })
             day.events.forEach { event ->
                 page.days_div.appendChild(button().also {
@@ -86,10 +87,10 @@ class EventShow(val day: ApiDay, val event: ApiEvent) {
 
         allFiles = api.New(EventRequest(event.firstFileName)).files
         updateFiles()
-        nextFromBeginning()
+        fromBeginning()
     }
 
-    private fun nextFromBeginning() {
+    private fun fromBeginning() {
         imageIndex = -1
         nextClick()
     }
@@ -149,7 +150,8 @@ class EventShow(val day: ApiDay, val event: ApiEvent) {
 
         page.prevBtn.onclick = { showImage(-1) }
         page.nextBtn.onclick = { nextClick() }
-        page.maskCheckBox.onclick = { nextFromBeginning() }
+        page.maskCheckBox.onclick = { fromBeginning() }
+        page.resetBtn.onclick = { fromBeginning() }
     }
 
 

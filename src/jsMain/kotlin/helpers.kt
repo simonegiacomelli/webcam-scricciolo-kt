@@ -17,6 +17,7 @@ var HTMLButtonElement.onclickExt: suspend () -> Unit
     }
 
 
+fun br() = document.createElement("br")
 fun div() = document.createElement("div") as HTMLDivElement
 fun div(elementId: String) = document.getElementById(elementId) as HTMLDivElement
 fun button(elementId: String) = document.getElementById(elementId) as HTMLButtonElement
