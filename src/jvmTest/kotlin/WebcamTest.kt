@@ -93,5 +93,7 @@ internal class WebcamTest {
         val target = Webcam(root)
         target.deleteEvent("CAM1_804-20200830051609-01.jpg")
         assertFalse(folder.exists())
+        val day = target.summary().first { it.name == "2020-08-30" }
+        assertEquals(0, day.events.count { it.name == "804" })
     }
 }
