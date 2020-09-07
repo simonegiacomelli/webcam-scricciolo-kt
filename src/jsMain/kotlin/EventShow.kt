@@ -5,7 +5,15 @@ import kotlinx.coroutines.async
 import org.w3c.dom.HTMLButtonElement
 import kotlin.math.ceil
 
-class EventShow(val day: ApiDay, val event: ApiEvent, val btn: HTMLButtonElement) {
+class EventShow(
+    val day: ApiDay,
+    val event: ApiEvent,
+    val onDelete: (ev: EventShow) -> Unit
+) {
+    val btn = button().also {
+        it.innerHTML = event.time
+        it.onclickExt = { startClick() }
+    }
 
     companion object {
         var show: EventShow? = null
@@ -32,7 +40,7 @@ class EventShow(val day: ApiDay, val event: ApiEvent, val btn: HTMLButtonElement
 
     var allFiles: List<String> = emptyList()
 
-    suspend fun buttonClick() {
+    suspend fun startClick() {
         highLightButton()
         setCurrentShowTo(this)
         setupEvents()
@@ -114,6 +122,7 @@ class EventShow(val day: ApiDay, val event: ApiEvent, val btn: HTMLButtonElement
         clearTimeout()
         api.New(ApiDeleteEvent(event.firstFileName))
         btn.remove()
+        onDelete(this)
     }
 
 

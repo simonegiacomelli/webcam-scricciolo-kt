@@ -2,16 +2,18 @@ import framework.ApiClient
 import kotlinx.browser.document
 import kotlinx.browser.window
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
 import kotlinx.coroutines.await
 import kotlinx.coroutines.launch
 import org.w3c.dom.HTMLInputElement
 import org.w3c.dom.HTMLProgressElement
 import org.w3c.dom.HTMLSpanElement
 import org.w3c.dom.events.Event
+import kotlin.math.min
 
 
 fun main() {
-    println("v1.5")
+    println("v2.0")
     window.onload = ::onload
 }
 
@@ -43,15 +45,24 @@ fun onload(e: Event) {
         page.days_div.innerHTML = ""
 
         val resp = api.New(SummaryRequest())
-        resp.payload.forEach { day ->
+        resp.payload.forEach { apiDay ->
             page.days_div.appendChild(br())
-            page.days_div.appendChild(div().also { it.innerHTML = day.name })
-            day.events.forEach { event ->
-                page.days_div.appendChild(button().also {
-                    it.innerHTML = event.time
-                    val es = EventShow(day, event,it)
-                    it.onclickExt = { es.buttonClick() }
-                })
+            page.days_div.appendChild(div().also { it.innerHTML = apiDay.name })
+            val allDayEvents = mutableListOf<EventShow>()
+            fun onDelete(ev: EventShow) {
+                println("Ondelete ${ev.event.time}")
+                val idx = allDayEvents.indexOf(ev)
+                if (idx == -1) return
+                allDayEvents.removeAt(idx)
+                if (allDayEvents.size == 0) return
+                val nextIdx = min(idx, allDayEvents.size - 1)
+                GlobalScope.async { allDayEvents[nextIdx].startClick() }
+            }
+            allDayEvents.addAll(apiDay.events.map { apiEvent ->
+                EventShow(apiDay, apiEvent) { onDelete(it) }
+            })
+            allDayEvents.forEach {
+                page.days_div.appendChild(it.btn)
             }
 
         }
