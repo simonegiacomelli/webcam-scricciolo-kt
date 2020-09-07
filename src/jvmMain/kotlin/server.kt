@@ -25,8 +25,12 @@ fun HTML.index() {
     }
 }
 
+val pathname = "./src/jvmTest/resources/test_files/flat_files"
+val webcam by lazy { Webcam(pathname) }
 fun main() {
+
     val apiServer = ApiServer()
+    apiServer.registerSummary()
     aaa(apiServer)
 
     val port = 8071
@@ -50,6 +54,10 @@ fun main() {
             }
         }
     }.start(wait = true)
+}
+
+private fun ApiServer.registerSummary() {
+    register<SummaryRequest, SummaryResponse> { SummaryResponse(webcam.summary()) }
 }
 
 private fun aaa(apiServer: ApiServer) {

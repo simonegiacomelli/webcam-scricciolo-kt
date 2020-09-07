@@ -1,18 +1,38 @@
 import framework.ApiClient
-import kotlinx.html.div
-import kotlinx.html.dom.append
-import org.w3c.dom.Node
 import kotlinx.browser.document
 import kotlinx.browser.window
-import kotlinx.coroutines.*
-import kotlinx.html.button
-import kotlinx.serialization.InternalSerializationApi
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.await
+import kotlinx.coroutines.launch
+import org.w3c.dom.events.Event
 
-@InternalSerializationApi
+
 fun main() {
-    window.onload = {
-        GlobalScope.async {
-            document.body?.sayHello()
+    println("v1.4")
+    window.onload = ::onload
+}
+
+val api = ApiClient(::doRequest)
+
+fun onload(e: Event) {
+
+    val body = document.body!!
+
+    GlobalScope.launch {
+
+
+        val resp = api.New(SummaryRequest())
+        resp.payload.forEach { day ->
+            val container = div()
+            container.appendChild(div().also { it.innerHTML = day.name })
+            day.events.forEach { event ->
+                container.appendChild(button().also {
+                    it.innerHTML = event.time
+                    it.onclickExt = { eventButtonClick(event) }
+                })
+            }
+
+            body.appendChild(container)
         }
     }
 }
@@ -23,23 +43,7 @@ suspend fun doRequest(apiName: String, serializedArguments: String): String {
     return resp.text().await()
 }
 
-@InternalSerializationApi
-suspend fun Node.sayHello() {
-    val api = ApiClient(::doRequest)
-    val resp = api.New(LoginRequest("simo", "simo"))
-    append {
-        div { //comm
-            +"Hello from JS 2"
-        }
-        button {
-            +"refresh"
-        }
-    }
-    if (true) {
-        append {
-            div { //comm
-                +"yepa=$resp "
-            }
-        }
-    }
+
+suspend fun eventButtonClick(event: ApiEvent) {
+    println(event.time)
 }
