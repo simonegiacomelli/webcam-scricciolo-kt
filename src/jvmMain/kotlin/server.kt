@@ -41,7 +41,7 @@ object WebcamProvider {
         log("Loading $imageDirectory")
         val webcam1 = Webcam(imageDirectory)
         val ela = System.currentTimeMillis() - start
-        log("newWebcam elapsed $ela")
+        log("newWebcam took $ela millis")
         return webcam1
     }
 
