@@ -1,7 +1,10 @@
 import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpack
 
+val mainClass = "ServerKt"
+
 plugins {
     kotlin("multiplatform") version "1.4.0"
+    kotlin("plugin.serialization") version "1.4.0"
     application
 }
 group = "me.simonegiacomelli"
@@ -33,16 +36,23 @@ kotlin {
             runTask {
                 cssSupport.enabled = true
             }
-            testTask {
-                useKarma {
-                    useChromeHeadless()
-                    webpackConfig.cssSupport.enabled = true
-                }
-            }
+//            testTask {
+//                useKarma {
+//                    useChromeHeadless()
+//                    webpackConfig.cssSupport.enabled = true
+//                }
+//            }
         }
     }
     sourceSets {
-        val commonMain by getting
+        val commonMain by getting {
+            dependencies {
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.0.0-RC")
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-protobuf:1.0.0-RC")
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9")
+                implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.1.0")
+            }
+        }
         val commonTest by getting {
             dependencies {
                 implementation(kotlin("test-common"))
@@ -56,10 +66,16 @@ kotlin {
                 implementation("org.jetbrains.kotlinx:kotlinx-html-jvm:0.7.2")
             }
         }
-        val jvmTest by getting
+        val jvmTest by getting {
+            dependencies {
+                implementation(kotlin("test"))
+                implementation(kotlin("test-junit"))
+            }
+        }
         val jsMain by getting {
             dependencies {
                 implementation("org.jetbrains.kotlinx:kotlinx-html-js:0.7.2")
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-js:1.3.9")
             }
         }
         val jsTest by getting {
@@ -70,7 +86,7 @@ kotlin {
     }
 }
 application {
-    mainClassName = "ServerKt"
+    mainClassName = mainClass
 }
 tasks.getByName<KotlinWebpack>("jsBrowserProductionWebpack") {
     outputFileName = "output.js"
@@ -83,4 +99,23 @@ tasks.getByName<Jar>("jvmJar") {
 tasks.getByName<JavaExec>("run") {
     dependsOn(tasks.getByName<Jar>("jvmJar"))
     classpath(tasks.getByName<Jar>("jvmJar"))
+}
+
+tasks.register<Jar>("buildFatJar3") {
+    group = "application"
+    val jsbpw = tasks.getByName<KotlinWebpack>("jsBrowserProductionWebpack")
+    dependsOn(tasks.getByName("build"))
+    dependsOn(jsbpw)
+    val main = kotlin.jvm().compilations.getByName("main")
+    manifest {
+        attributes["Main-Class"] = mainClass
+    }
+    fun jsOutput(suffix: String = "") = File(jsbpw.destinationDirectory, jsbpw.outputFileName + suffix)
+    from(
+        configurations.getByName("runtimeClasspath").map { if (it.isDirectory) it else zipTree(it) },
+        main.output.classesDirs,
+        jsOutput(),
+        jsOutput(".map")
+    )
+    archiveBaseName.set("fat3-${project.name}")
 }

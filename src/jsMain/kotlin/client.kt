@@ -10,8 +10,8 @@ fun main() {
 
 fun Node.sayHello() {
     append {
-        div {
-            +"Hello from JS"
+        div { //comm
+            +"Hello from JS 2"
         }
     }
 }
