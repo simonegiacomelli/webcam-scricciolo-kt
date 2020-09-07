@@ -9,13 +9,13 @@ internal class WebcamTest {
     @Test
     fun listDays() {
         val target = Webcam(pathname)
-        assertEquals(listOf("20200825", "20200827", "20200830"), target.days.map { it.name })
+        assertEquals(listOf("2020-08-25", "2020-08-27", "2020-08-30"), target.days.map { it.name })
     }
 
     @Test
     fun listDay_events() {
         val target = Webcam(pathname)
-        val day = target.days.first { it.name == "20200830" }
+        val day = target.days.first { it.name == "2020-08-30" }
         assertEquals(listOf("804", "805"), day.events.map { it.name })
     }
 
@@ -34,7 +34,7 @@ internal class WebcamTest {
     @Test
     fun list_event_time() {
         val target = Webcam(pathname)
-        val day = target.days.first { it.name == "20200830" }
+        val day = target.days.first { it.name == "2020-08-30" }
         val event = day.events.associateBy { it.name }
         val e804 = event["804"] ?: fail("Should exist")
         assertEquals("CAM1_804-20200830051609-01.jpg", e804.firstFile.name)

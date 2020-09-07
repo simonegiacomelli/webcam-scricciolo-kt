@@ -8,7 +8,13 @@ data class Event(val root: File) {
 
 data class Day(val root: File) {
     val events = list(root).map { Event(it) }
-    val name: String get() = root.name
+    val name: String
+        get() = root.name.let {
+            println(it)
+            it.substring(0, 4) + "-" + it.substring(4, 6) + "-" + it.substring(6, 8)
+        }.also {
+            println(it)
+        }
 }
 
 class Webcam(private val root: File) {
