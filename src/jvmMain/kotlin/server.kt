@@ -10,10 +10,6 @@ import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import java.io.File
-import java.util.concurrent.locks.Lock
-import java.util.concurrent.locks.ReentrantLock
-import kotlin.concurrent.timer
-import kotlin.concurrent.withLock
 
 
 var imageDirectory = "./src/jvmTest/resources/test_files/flat_files"
@@ -22,35 +18,6 @@ var workingDirectory = "build/distributions"
 fun log(line: String) {
     val m = Clock.System.now().toLocalDateTime(TimeZone.of("Europe/Rome"))
     println("$m $line")
-}
-
-object WebcamProvider {
-    private var w: Webcam? = null
-    val lock: Lock = ReentrantLock()
-    val value: Webcam
-        get() {
-            return lock.withLock {
-                if (w == null)
-                    w = newWebcam()
-                w!!
-            }
-        }
-
-    private fun newWebcam(): Webcam {
-        val start = System.currentTimeMillis()
-        log("Loading $imageDirectory")
-        val webcam1 = Webcam(imageDirectory)
-        val ela = System.currentTimeMillis() - start
-        log("newWebcam took $ela millis")
-        return webcam1
-    }
-
-    fun refreshOnceInAWhile() {
-        timer("WebcamProvider", daemon = true, period = 1000 * 60) {
-            val v = newWebcam()
-            lock.withLock { w = v }
-        }
-    }
 }
 
 val webcam: Webcam get() = WebcamProvider.value
@@ -92,6 +59,7 @@ fun main(args: Array<String>) {
 
             }
             get("/api/{class_name}") {
+
                 val className = call.parameters["class_name"]!!
                 log("api $className")
                 val serializedRequest = call.request.queryParameters[apiArgumentKeyName]!!
