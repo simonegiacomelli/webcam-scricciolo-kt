@@ -4,7 +4,12 @@ import kotlinx.browser.window
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.await
 import kotlinx.coroutines.launch
+import org.w3c.dom.HTMLInputElement
+import org.w3c.dom.HTMLProgressElement
+import org.w3c.dom.HTMLSpanElement
 import org.w3c.dom.events.Event
+import kotlin.math.ceil
+import kotlin.math.round
 
 
 fun main() {
@@ -13,7 +18,20 @@ fun main() {
 }
 
 val api = ApiClient(::doRequest)
-val img by lazy { img("img_tag") }
+
+object page {
+    val automaticNext: Boolean get() = automaticCheckBox.checked
+    val img by lazy { img("img_tag") }
+    val imgDiv by lazy { document.getElementById("img_div") as HTMLSpanElement }
+    val days_div by lazy { div("days_div") }
+    val progressbar by lazy { document.getElementById("progress_tag") as HTMLProgressElement }
+    val automaticCheckBox by lazy { document.getElementById("automatic_tag") as HTMLInputElement }
+    private val msecInput by lazy { document.getElementById("automatic_msec") as HTMLInputElement }
+    val maskCheckBox by lazy { document.getElementById("mask_images") as HTMLInputElement }
+    val prevBtn by lazy { button("prevBtn") }
+    val nextBtn by lazy { button("nextBtn") }
+    val intervalMsec: Int get() = msecInput.value.toInt()
+}
 
 fun onload(e: Event) {
 
@@ -21,16 +39,16 @@ fun onload(e: Event) {
 
     GlobalScope.launch {
 
-        val container = div("days_div")
-        container.innerHTML = ""
+        page.days_div.innerHTML = ""
 
         val resp = api.New(SummaryRequest())
         resp.payload.forEach { day ->
-            container.appendChild(div().also { it.innerHTML = day.name })
+            page.days_div.appendChild(div().also { it.innerHTML = day.name })
             day.events.forEach { event ->
-                container.appendChild(button().also {
+                page.days_div.appendChild(button().also {
                     it.innerHTML = event.time
-                    it.onclickExt = { eventButtonClick(day, event) }
+                    val es = EventShow(day, event)
+                    it.onclickExt = { es.buttonClick() }
                 })
             }
 
@@ -46,15 +64,87 @@ suspend fun doRequest(apiName: String, serializedArguments: String): String {
 }
 
 
-suspend fun eventButtonClick(day: ApiDay, event: ApiEvent) {
-    println("eventButtonClick")
-    val resp = api.New(EventRequest(event.firstFileName))
+class EventShow(val day: ApiDay, val event: ApiEvent) {
+    var files: List<String> = emptyList()
 
-    resp.files.forEach {
-        println(it)
+    companion object {
+        var show: EventShow? = null
+        fun setCurrentShowTo(s: EventShow) {
+            show = s
+        }
     }
-    val first = resp.files.first()
-    img.src = "/image?full_filename=${event.dayFolder}/${event.name}/$first"
-    console.log("Loading ${img.src}")
-    img.onload = { console.log("onload for $first") }
+
+
+    var imageIndex = -1
+
+    fun tick() {
+        if (show != this) {
+            println("Show changed! was ${event.time}")
+            return
+        }
+        if (!page.automaticNext)
+            return
+
+        if (showImage(1))
+            setTimeout()
+    }
+
+    private fun nextClick() {
+        showImage(1)
+        setTimeout()
+    }
+
+    private fun showImage(offset: Int): Boolean {
+
+        val idx = imageIndex + offset
+        if (idx < 0 || idx >= files.size)
+            return false
+        imageIndex = idx
+
+        val filename = files[idx]
+        val fullName = "${event.dayFolder}/${event.name}/$filename"
+        page.img.src = "/image?full_filename=$fullName"
+        page.progressbar.value = ceil((imageIndex + 1).toDouble() / files.size * 100)
+        page.imgDiv.innerHTML = "${event.time} ${imageIndex + 1}/${files.size}"
+        debugLoad(fullName, idx)
+        return true
+    }
+
+    private fun debugLoad(fullName: String, idx: Int) {
+        console.log("$fullName Loading")
+        page.img.onload = { console.log("$fullName Loaded OK ${idx + 1}/${files.size}") }
+    }
+
+    suspend fun buttonClick() {
+        println("eventButtonClick")
+        setCurrentShowTo(this)
+        page.progressbar.apply {
+            onclick = fun(e) {
+                val valueClicked = e.offsetX * this.max / this.offsetWidth / 100;
+                val x = files.size * valueClicked
+                imageIndex = ceil(x).toInt() - 1
+                println("valueClicked=$valueClicked x=$x imageIndex=$imageIndex")
+                showImage(0)
+            }
+        }
+
+        page.prevBtn.onclick = {
+            showImage(-1)
+        }
+        page.nextBtn.onclick = {
+            nextClick()
+        }
+
+        files = api.New(EventRequest(event.firstFileName)).files
+        imageIndex = -1
+        nextClick()
+    }
+
+
+    private fun setTimeout() {
+        if (!page.automaticNext)
+            return
+        window.setTimeout({ tick() }, page.intervalMsec)
+    }
+
 }
