@@ -9,7 +9,6 @@ import io.ktor.routing.routing
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import kotlinx.html.*
-import kotlinx.serialization.InternalSerializationApi
 
 fun HTML.index() {
     head {
@@ -26,12 +25,9 @@ fun HTML.index() {
     }
 }
 
-@InternalSerializationApi
 fun main() {
     val apiServer = ApiServer()
-    apiServer.register<LoginRequest, LoginResponse> {
-        LoginResponse(true, "hello ${it.username}")
-    }
+    aaa(apiServer)
 
     val port = 8071
     val host = "0.0.0.0"
@@ -54,4 +50,10 @@ fun main() {
             }
         }
     }.start(wait = true)
+}
+
+private fun aaa(apiServer: ApiServer) {
+    apiServer.register<LoginRequest, LoginResponse> {
+        LoginResponse(true, "hello ${it.username}")
+    }
 }

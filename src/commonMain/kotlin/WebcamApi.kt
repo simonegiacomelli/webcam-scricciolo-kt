@@ -1,7 +1,7 @@
 import framework.HasResponse
 import kotlinx.serialization.Serializable
 
-val apiArgumentKeyName = "serialized_request"
+const val apiArgumentKeyName = "serialized_request"
 fun apiBaseUrl(apiName: String) = "/api/$apiName"
 
 @Serializable

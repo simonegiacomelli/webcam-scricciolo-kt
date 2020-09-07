@@ -1,4 +1,5 @@
 import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpack
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 val mainClass = "ServerKt"
 
@@ -45,6 +46,10 @@ kotlin {
         }
     }
     sourceSets {
+        all {
+            //FIXME remove optin
+            languageSettings.useExperimentalAnnotation("kotlinx.serialization.InternalSerializationApi")
+        }
         val commonMain by getting {
             dependencies {
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.0.0-RC")
