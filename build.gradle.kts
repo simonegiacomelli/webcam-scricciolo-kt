@@ -100,6 +100,7 @@ tasks.getByName<Jar>("jvmJar") {
     dependsOn(tasks.getByName("jsBrowserProductionWebpack"))
     val jsBrowserProductionWebpack = tasks.getByName<KotlinWebpack>("jsBrowserProductionWebpack")
     from(File(jsBrowserProductionWebpack.destinationDirectory, jsBrowserProductionWebpack.outputFileName))
+    from(File(jsBrowserProductionWebpack.destinationDirectory, "index.html"))
 }
 tasks.getByName<JavaExec>("run") {
     dependsOn(tasks.getByName<Jar>("jvmJar"))
@@ -122,5 +123,6 @@ tasks.register<Jar>("buildFatJar3") {
         jsOutput(),
         jsOutput(".map")
     )
+    from(File(jsbpw.destinationDirectory, "index.html"))
     archiveBaseName.set("fat3-${project.name}")
 }
