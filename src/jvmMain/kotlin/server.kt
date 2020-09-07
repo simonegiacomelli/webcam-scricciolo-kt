@@ -38,6 +38,7 @@ object WebcamProvider {
 
     private fun newWebcam(): Webcam {
         val start = System.currentTimeMillis()
+        log("Loading $imageDirectory")
         val webcam1 = Webcam(imageDirectory)
         val ela = System.currentTimeMillis() - start
         log("newWebcam elapsed $ela")
@@ -57,6 +58,7 @@ val webcam: Webcam get() = WebcamProvider.value
 fun main(args: Array<String>) {
     if (args.isNotEmpty()) {
         imageDirectory = args[0]
+        log("Using imageDirectory=$imageDirectory")
         workingDirectory = "."
     }
 
@@ -65,9 +67,9 @@ fun main(args: Array<String>) {
     val apiServer = ApiServer()
     apiServer.registerApi()
 
-    val port = 8071
+    val port = 8090
     val host = "0.0.0.0"
-    println("Starting server on  $host:$port")
+    println("Starting server v1.1 on  $host:$port")
 
     embeddedServer(Netty, port = port, host = host) {
         routing {

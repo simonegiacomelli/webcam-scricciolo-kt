@@ -1,13 +1,15 @@
 import java.io.File
 
 data class Event(val root: File) {
-    val firstFile: File = root.listFiles().filterNotNull().minByOrNull { it.name }!!
+    private val ff = root.listFiles().filterNotNull().minByOrNull { it.name }
+    val firstFile: File get() = ff!!
+    val valid: Boolean get() = ff != null
     val name: String = root.name
-    val time: String = firstFile.name.split("-")[1].substring(8).chunked(2).joinToString(":")
+    val time: String by lazy { firstFile.name.split("-")[1].substring(8).chunked(2).joinToString(":") }
 }
 
 data class Day(val root: File) {
-    val events = list(root).map { Event(it) }
+    val events = list(root).map { Event(it) }.filter { it.valid }
     val name: String
         get() = root.name.let {
             it.substring(0, 4) + "-" + it.substring(4, 6) + "-" + it.substring(6, 8)
