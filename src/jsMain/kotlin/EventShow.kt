@@ -7,6 +7,7 @@ class EventShow(val day: ApiDay, val event: ApiEvent, val btn: HTMLButtonElement
     companion object {
         var show: EventShow? = null
         fun setCurrentShowTo(s: EventShow) {
+            show?.removeHighlight()
             show = s
         }
     }
@@ -14,10 +15,11 @@ class EventShow(val day: ApiDay, val event: ApiEvent, val btn: HTMLButtonElement
     var handle: Int? = null
     var imageIndex = -1
     var files: List<String> = emptyList()
+
     var allFiles: List<String> = emptyList()
 
     suspend fun buttonClick() {
-        println("eventButtonClick")
+        highLightButton()
         setCurrentShowTo(this)
         setupEvents()
 
@@ -111,6 +113,15 @@ class EventShow(val day: ApiDay, val event: ApiEvent, val btn: HTMLButtonElement
         val h = handle ?: return
         window.clearTimeout(h)
         handle = null
+    }
+
+    private fun removeHighlight() {
+        btn.classList.remove("selected_btn")
+    }
+
+    private fun highLightButton() {
+        btn.classList.add("selected_btn")
+        btn.blur()
     }
 
 }
