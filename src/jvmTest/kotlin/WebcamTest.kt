@@ -51,4 +51,16 @@ internal class WebcamTest {
         assertEquals("2020-08-25", summary.first().name)
         assertEquals("05:16:36", summary.last().events.last().time)
     }
+
+    @Test
+    fun api_eventSummary() {
+        val target = Webcam(pathname)
+        val expected = listOf(
+            "CAM1_805-20200830051636-01.jpg",
+            "CAM1_805-20200830051637-00.jpg",
+            "CAM1_805-20200830051637-01.jpg",
+            "CAM1_805-20200830051638-00.jpg"
+        )
+        assertEquals(expected, target.eventSummary("CAM1_805-20200830051636-01.jpg").files)
+    }
 }

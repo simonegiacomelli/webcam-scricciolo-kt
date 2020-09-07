@@ -34,6 +34,7 @@ fun onload(e: Event) {
 
             body.appendChild(container)
         }
+
     }
 }
 
@@ -45,5 +46,9 @@ suspend fun doRequest(apiName: String, serializedArguments: String): String {
 
 
 suspend fun eventButtonClick(event: ApiEvent) {
-    println(event.time)
+    println("eventButtonClick")
+    val resp = api.New(EventRequest(event.firstFileName))
+    resp.files.forEach {
+        println(it)
+    }
 }

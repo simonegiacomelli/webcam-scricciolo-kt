@@ -1,46 +1,33 @@
 import framework.ApiServer
-import io.ktor.application.call
-import io.ktor.html.respondHtml
+import io.ktor.application.*
 import io.ktor.http.*
 import io.ktor.http.content.*
 import io.ktor.response.*
-import io.ktor.routing.get
-import io.ktor.routing.routing
-import io.ktor.server.engine.embeddedServer
-import io.ktor.server.netty.Netty
-import kotlinx.html.*
+import io.ktor.routing.*
+import io.ktor.server.engine.*
+import io.ktor.server.netty.*
+import java.io.File
 
-fun HTML.index() {
-    head {
-        title("Hello from Ktor!")
-    }
-    body {
-        div {
-            +"Hello from Ktor"
-        }
-        div {
-            id = "root"
-        }
-        script(src = "/static/output.js") {}
-    }
-}
 
 val pathname = "./src/jvmTest/resources/test_files/flat_files"
 val webcam by lazy { Webcam(pathname) }
 fun main() {
 
     val apiServer = ApiServer()
-    apiServer.registerSummary()
-    aaa(apiServer)
+    apiServer.registerApi()
 
     val port = 8071
     val host = "0.0.0.0"
     println("Starting server on  $host:$port")
+    val folder = "build/distributions"
     embeddedServer(Netty, port = port, host = host) {
         routing {
             get("/") {
                 println("ciao")
-                call.respondHtml(HttpStatusCode.OK, HTML::index)
+                call.respondRedirect("/index.html", permanent = false)
+            }
+            get("/index.html") {
+                call.respondFile(File(folder).resolve("wwwroot").resolve("index.html"))
             }
             get("/api/{class_name}") {
                 val className = call.parameters["class_name"]!!
@@ -49,19 +36,14 @@ fun main() {
                 call.respondText(serializedResponse, ContentType.Text.Plain)
             }
             static("/static") {
-                files("build/distributions")
+                files(folder)
                 resources()
             }
         }
     }.start(wait = true)
 }
 
-private fun ApiServer.registerSummary() {
+private fun ApiServer.registerApi() {
     register<SummaryRequest, SummaryResponse> { SummaryResponse(webcam.summary()) }
-}
-
-private fun aaa(apiServer: ApiServer) {
-    apiServer.register<LoginRequest, LoginResponse> {
-        LoginResponse(true, "hello ${it.username}")
-    }
+    register<EventRequest, ApiEventSummary> { webcam.eventSummary(it.firstFileName) }
 }
