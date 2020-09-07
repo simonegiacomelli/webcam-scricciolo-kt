@@ -1,4 +1,7 @@
+import fragment.HotkeyWindow
 import kotlinx.browser.window
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
 import org.w3c.dom.HTMLButtonElement
 import kotlin.math.ceil
 
@@ -9,6 +12,17 @@ class EventShow(val day: ApiDay, val event: ApiEvent, val btn: HTMLButtonElement
         fun setCurrentShowTo(s: EventShow) {
             show?.removeHighlight()
             show = s
+        }
+
+        init {
+            handleKeyboard()
+        }
+
+        private fun handleKeyboard() {
+            println("Handling keybord hotkey")
+            HotkeyWindow.add("RIGHT") { show?.nextClick(10) }
+            HotkeyWindow.add("LEFT") { show?.nextClick(-10) }
+            HotkeyWindow.add("D") { GlobalScope.async { show?.deleteEvent() } }
         }
     }
 
@@ -24,11 +38,11 @@ class EventShow(val day: ApiDay, val event: ApiEvent, val btn: HTMLButtonElement
         setupEvents()
 
         allFiles = api.New(EventRequest(event.firstFileName)).files
-        updateFiles()
         fromBeginning()
     }
 
     private fun fromBeginning() {
+        updateFiles()
         imageIndex = -1
         nextClick()
     }
@@ -49,8 +63,9 @@ class EventShow(val day: ApiDay, val event: ApiEvent, val btn: HTMLButtonElement
             setTimeout()
     }
 
-    private fun nextClick() {
-        showImage(1)
+    private fun nextClick(offset: Int = 1) {
+        println("next $offset")
+        showImage(offset)
         setTimeout()
     }
 
