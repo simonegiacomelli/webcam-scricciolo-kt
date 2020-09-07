@@ -69,7 +69,7 @@ fun main(args: Array<String>) {
 
     val port = 8090
     val host = "0.0.0.0"
-    println("Starting server v1.1 on  $host:$port")
+    println("Starting server v1.3 on  $host:$port")
 
     embeddedServer(Netty, port = port, host = host) {
         routing {
@@ -93,6 +93,7 @@ fun main(args: Array<String>) {
             }
             get("/api/{class_name}") {
                 val className = call.parameters["class_name"]!!
+                log("api $className")
                 val serializedRequest = call.request.queryParameters[apiArgumentKeyName]!!
                 val serializedResponse = apiServer.invoke(className, serializedRequest)
                 call.respondText(serializedResponse, ContentType.Text.Plain)
