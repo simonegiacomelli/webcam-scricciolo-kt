@@ -13,7 +13,7 @@ import kotlin.math.round
 
 
 fun main() {
-    println("v1.4")
+    println("v1.5")
     window.onload = ::onload
 }
 
@@ -21,6 +21,7 @@ val api = ApiClient(::doRequest)
 
 object page {
     val automaticNext: Boolean get() = automaticCheckBox.checked
+    val maskEnabled: Boolean get() = maskCheckBox.checked
     val img by lazy { img("img_tag") }
     val imgDiv by lazy { document.getElementById("img_div") as HTMLSpanElement }
     val days_div by lazy { div("days_div") }
@@ -65,7 +66,6 @@ suspend fun doRequest(apiName: String, serializedArguments: String): String {
 
 
 class EventShow(val day: ApiDay, val event: ApiEvent) {
-    var files: List<String> = emptyList()
 
     companion object {
         var show: EventShow? = null
@@ -74,8 +74,29 @@ class EventShow(val day: ApiDay, val event: ApiEvent) {
         }
     }
 
-
+    var handle: Int? = null
     var imageIndex = -1
+    var files: List<String> = emptyList()
+    var allFiles: List<String> = emptyList()
+
+    suspend fun buttonClick() {
+        println("eventButtonClick")
+        setCurrentShowTo(this)
+        setupEvents()
+
+        allFiles = api.New(EventRequest(event.firstFileName)).files
+        updateFiles()
+        nextFromBeginning()
+    }
+
+    private fun nextFromBeginning() {
+        imageIndex = -1
+        nextClick()
+    }
+
+    private fun updateFiles() {
+        files = if (page.maskEnabled) allFiles else allFiles.filter { !it.endsWith("m.jpg") }
+    }
 
     fun tick() {
         if (show != this) {
@@ -115,9 +136,7 @@ class EventShow(val day: ApiDay, val event: ApiEvent) {
         page.img.onload = { console.log("$fullName Loaded OK ${idx + 1}/${files.size}") }
     }
 
-    suspend fun buttonClick() {
-        println("eventButtonClick")
-        setCurrentShowTo(this)
+    private fun setupEvents() {
         page.progressbar.apply {
             onclick = fun(e) {
                 val valueClicked = e.offsetX * this.max / this.offsetWidth / 100;
@@ -128,23 +147,23 @@ class EventShow(val day: ApiDay, val event: ApiEvent) {
             }
         }
 
-        page.prevBtn.onclick = {
-            showImage(-1)
-        }
-        page.nextBtn.onclick = {
-            nextClick()
-        }
-
-        files = api.New(EventRequest(event.firstFileName)).files
-        imageIndex = -1
-        nextClick()
+        page.prevBtn.onclick = { showImage(-1) }
+        page.nextBtn.onclick = { nextClick() }
+        page.maskCheckBox.onclick = { nextFromBeginning() }
     }
 
 
     private fun setTimeout() {
+        clearTimeout()
         if (!page.automaticNext)
             return
-        window.setTimeout({ tick() }, page.intervalMsec)
+        handle = window.setTimeout({ tick() }, page.intervalMsec)
+    }
+
+    private fun clearTimeout() {
+        val h = handle ?: return
+        window.clearTimeout(h)
+        handle = null
     }
 
 }
