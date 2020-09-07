@@ -50,6 +50,7 @@ internal class WebcamTest {
         val summary = target.summary()
         assertEquals("2020-08-25", summary.first().name)
         assertEquals("05:16:36", summary.last().events.last().time)
+        assertEquals("20200830", summary.last().events.last().dayFolder)
     }
 
     @Test
@@ -63,4 +64,5 @@ internal class WebcamTest {
         )
         assertEquals(expected, target.eventSummary("CAM1_805-20200830051636-01.jpg").files)
     }
+
 }

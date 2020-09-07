@@ -13,6 +13,7 @@ fun main() {
 }
 
 val api = ApiClient(::doRequest)
+val img by lazy { img("img_tag") }
 
 fun onload(e: Event) {
 
@@ -20,19 +21,19 @@ fun onload(e: Event) {
 
     GlobalScope.launch {
 
+        val container = div("days_div")
+        container.innerHTML = ""
 
         val resp = api.New(SummaryRequest())
         resp.payload.forEach { day ->
-            val container = div()
             container.appendChild(div().also { it.innerHTML = day.name })
             day.events.forEach { event ->
                 container.appendChild(button().also {
                     it.innerHTML = event.time
-                    it.onclickExt = { eventButtonClick(event) }
+                    it.onclickExt = { eventButtonClick(day, event) }
                 })
             }
 
-            body.appendChild(container)
         }
 
     }
@@ -45,10 +46,15 @@ suspend fun doRequest(apiName: String, serializedArguments: String): String {
 }
 
 
-suspend fun eventButtonClick(event: ApiEvent) {
+suspend fun eventButtonClick(day: ApiDay, event: ApiEvent) {
     println("eventButtonClick")
     val resp = api.New(EventRequest(event.firstFileName))
+
     resp.files.forEach {
         println(it)
     }
+    val first = resp.files.first()
+    img.src = "/image?full_filename=${event.dayFolder}/${event.name}/$first"
+    console.log("Loading ${img.src}")
+    img.onload = { console.log("onload for $first") }
 }

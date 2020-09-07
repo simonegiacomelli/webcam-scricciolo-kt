@@ -23,7 +23,6 @@ fun main() {
     embeddedServer(Netty, port = port, host = host) {
         routing {
             get("/") {
-                println("ciao")
                 call.respondRedirect("/index.html", permanent = false)
             }
             get("/index.html") {
@@ -34,6 +33,11 @@ fun main() {
                 val serializedRequest = call.request.queryParameters[apiArgumentKeyName]!!
                 val serializedResponse = apiServer.invoke(className, serializedRequest)
                 call.respondText(serializedResponse, ContentType.Text.Plain)
+            }
+            get("/image") {
+                val f = call.request.queryParameters["full_filename"]!!
+                println("full_name=$f")
+                call.respondFile(File(pathname, f))
             }
             static("/static") {
                 files(folder)

@@ -10,10 +10,8 @@ data class Day(val root: File) {
     val events = list(root).map { Event(it) }
     val name: String
         get() = root.name.let {
-            println(it)
             it.substring(0, 4) + "-" + it.substring(4, 6) + "-" + it.substring(6, 8)
         }.also {
-            println(it)
         }
 }
 
@@ -21,7 +19,7 @@ class Webcam(private val root: File) {
     fun summary(): List<ApiDay> {
         return days.map { day ->
             ApiDay(day.name, day.events.map { event ->
-                ApiEvent(event.name, event.time, event.firstFile.name)
+                ApiEvent(event.name, event.time, event.firstFile.name, day.root.name)
             })
         }
     }
