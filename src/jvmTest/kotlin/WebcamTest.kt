@@ -44,4 +44,11 @@ internal class WebcamTest {
         assertEquals("05:16:36", e805.time)
     }
 
+    @Test
+    fun api_summary() {
+        val target = Webcam(pathname)
+        val summary = target.summary()
+        assertEquals("2020-08-25", summary.first().name)
+        assertEquals("05:16:36", summary.last().events.last().time)
+    }
 }
