@@ -11,14 +11,9 @@ data class ApiEvent(val name: String, val time: String, val firstFileName: Strin
 @Serializable
 data class ApiDay(val name: String, val events: List<ApiEvent>)
 
-expect class Api1 : BasicRpc
+expect class Api : BasicRpc
 
-expect suspend fun Api1.divideByTwo(firstParam: Int): Double
-expect suspend fun Api1.divide(dividend: Double, divisor: Double): Double
-expect suspend fun Api1.sumNumbers(a: Int, b: Int): Int
-expect suspend fun Api1.externalEcho(s: String): String
-
-expect suspend fun Api1.summary(): List<ApiDay>
-expect suspend fun Api1.eventFileList(firstFileName: String) :List<String>
-expect suspend fun Api1.deleteEvent(firstFileName: String) :Boolean
+expect suspend fun Api.summary(): List<ApiDay>
+expect suspend fun Api.eventFileList(firstFileName: String): List<String>
+expect suspend fun Api.deleteEvent(firstFileName: String): Boolean
 

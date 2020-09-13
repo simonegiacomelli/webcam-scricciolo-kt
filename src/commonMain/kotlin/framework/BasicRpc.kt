@@ -28,6 +28,19 @@ open class BasicRpc {
         handlers[apiName] = h
     }
 
+
+    suspend fun dispatch(apiName: String, serialized_request: String): String {
+        println("dispatch $apiName ser=$serialized_request")
+        val suspendFunction1 = handlers[apiName]
+        if (suspendFunction1 == null) {
+            val message = "Did you register [$apiName] api?"
+            println(message)
+            throw Exception(message)
+        }
+        println("susp=$suspendFunction1")
+        return suspendFunction1(serialized_request)
+    }
+
     @JvmName("registerServerHandler2")
     inline fun <reified P1 : Any, reified P2 : Any, reified Res : Any, reified Req : Pair<P1, P2>>
             registerServerHandler(func: KSuspendFunction2<P1, P2, Res>) {

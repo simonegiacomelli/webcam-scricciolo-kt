@@ -17,7 +17,7 @@ fun main() {
     window.onload = ::onload
 }
 
-val api1 = Api1()
+val api1 = Api()
 
 object page {
     val automaticNext: Boolean get() = automaticCheckBox.checked
@@ -49,14 +49,8 @@ fun onload(e: Event) {
     }
     GlobalScope.launch {
 
-        println("RESPONSE oneParam: ${api1.divideByTwo(12345)}")
-        println("RESPONSE sumNumbers: ${api1.sumNumbers(10, 4)}")
-        println("RESPONSE externalEcho: ${api1.externalEcho("ciao simo")}")
-        println("RESPONSE divide: ${api1.divide(5.0, 2.0)}")
-        println("RESPONSE summary: ${api1.summary()}")
         page.days_div.innerHTML = ""
 
-//        val resp = api.New(SummaryRequest())
         api1.summary().forEach { apiDay ->
             page.days_div.appendChild(br())
             page.days_div.appendChild(div().also { it.innerHTML = apiDay.name })
