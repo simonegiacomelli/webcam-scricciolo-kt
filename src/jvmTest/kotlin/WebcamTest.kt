@@ -72,7 +72,7 @@ internal class WebcamTest {
     }
 
     @Test
-    fun api_eventSummary() {
+    fun api_eventFileList() {
         val target = Webcam(pathname)
         val expected = listOf(
             "CAM1_805-20200830051636-01.jpg",
@@ -80,7 +80,7 @@ internal class WebcamTest {
             "CAM1_805-20200830051637-01.jpg",
             "CAM1_805-20200830051638-00.jpg"
         )
-        assertEquals(expected, target.eventSummary("CAM1_805-20200830051636-01.jpg").files)
+        assertEquals(expected, target.eventFileList("CAM1_805-20200830051636-01.jpg"))
     }
 
     @Test

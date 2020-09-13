@@ -1,4 +1,3 @@
-import framework.ApiServer
 import io.ktor.application.*
 import io.ktor.http.*
 import io.ktor.http.content.*
@@ -8,7 +7,6 @@ import io.ktor.routing.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import io.ktor.util.pipeline.*
-import io.netty.handler.codec.DefaultHeaders
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
@@ -34,9 +32,8 @@ fun main(args: Array<String>) {
     }
 
     WebcamProvider.refreshOnceInAWhile()
-
-    val apiServer = ApiServer()
-    apiServer.registerApi()
+    val api1 = Api1()
+    api1.registerApi()
 
     val port = 8090
     val host = "0.0.0.0"
@@ -68,13 +65,23 @@ fun main(args: Array<String>) {
                 }
 
             }
-            get("/api/{class_name}") {
-
-                val className = call.parameters["class_name"]!!
-                log("api $className")
-                val serializedRequest = call.request.queryParameters[apiArgumentKeyName]!!
-                val serializedResponse = apiServer.invoke(className, serializedRequest)
-                call.respondText(serializedResponse, ContentType.Text.Plain)
+//            val path = "/api1/{api_name}"
+            val path = apiBaseUrl("{api_name}")
+            get(path) {
+                try {
+                    val apiName = call.parameters["api_name"]!!
+                    log("api1 $apiName")
+                    val serializedResponse = api1.dispatch(apiName, call.request.queryParameters[apiArgumentKeyName]!!)
+                    call.respondText("success=1\n\n$serializedResponse", ContentType.Text.Plain)
+                } catch (ex: Exception) {
+                    val text = "success=0\n\n${ex.stackTraceToString()}"
+                    println("handling exception [[$text]] ")
+                    call.respondText(
+                        text = text,
+                        status = HttpStatusCode.InternalServerError,
+                        contentType = ContentType.Text.Plain
+                    )
+                }
             }
             get("/image") {
                 val f = call.request.queryParameters["full_filename"]!!
@@ -98,10 +105,4 @@ fun authorized(ctx: PipelineContext<Unit, ApplicationCall>): Boolean {
     val authDecoded = String(Base64.getDecoder().decode(authRaw[1]))
     return authDecoded == authFile.readText()
 
-}
-
-private fun ApiServer.registerApi() {
-    register<SummaryRequest, SummaryResponse> { SummaryResponse(webcam.summary()) }
-    register<EventRequest, ApiEventSummary> { webcam.eventSummary(it.firstFileName) }
-    register<ApiDeleteEvent, ApiDeleteResponse> { webcam.deleteEvent(it.firstFileName); ApiDeleteResponse() }
 }

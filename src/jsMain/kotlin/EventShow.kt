@@ -45,7 +45,8 @@ class EventShow(
         setCurrentShowTo(this)
         setupEvents()
 
-        allFiles = api.New(EventRequest(event.firstFileName)).files
+//        allFiles = api.New(EventRequest(event.firstFileName)).files
+        allFiles = api1.eventFileList(event.firstFileName)
         fromBeginning()
     }
 
@@ -120,7 +121,8 @@ class EventShow(
         if (!window.confirm("Are you sure?"))
             return
         clearTimeout()
-        api.New(ApiDeleteEvent(event.firstFileName))
+//        api.New(ApiDeleteEvent(event.firstFileName))
+        api1.deleteEvent(event.firstFileName)
         btn.remove()
         onDelete(this)
     }

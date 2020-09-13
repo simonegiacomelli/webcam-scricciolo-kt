@@ -1,10 +1,10 @@
-import framework.ApiClient
 import kotlinx.browser.document
 import kotlinx.browser.window
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
-import kotlinx.coroutines.await
 import kotlinx.coroutines.launch
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import org.w3c.dom.HTMLInputElement
 import org.w3c.dom.HTMLProgressElement
 import org.w3c.dom.HTMLSpanElement
@@ -13,11 +13,11 @@ import kotlin.math.min
 
 
 fun main() {
-    println("v2.0")
+    println("v2.3")
     window.onload = ::onload
 }
 
-val api = ApiClient(::doRequest)
+val api1 = Api1()
 
 object page {
     val automaticNext: Boolean get() = automaticCheckBox.checked
@@ -33,19 +33,31 @@ object page {
     val nextBtn by lazy { button("nextBtn") }
     val resetBtn by lazy { button("resetBtn") }
     val deleteBtn by lazy { button("deleteBtn") }
+    val testBtn by lazy { button("testBtn") }
     val intervalMsec: Int get() = msecInput.value.toInt()
 }
 
 fun onload(e: Event) {
+//    val data = Data(Box(42), Box(Project("kotlinx.serialization", "Kotlin")))
+    val data = Pair("ciccio", "pasticcio")
+    println(Json.encodeToString(data))
 
     val body = document.body!!
+    page.testBtn.onclickExt = {
+        console.log("testBtn")
 
+    }
     GlobalScope.launch {
 
+        println("RESPONSE oneParam: ${api1.divideByTwo(12345)}")
+        println("RESPONSE sumNumbers: ${api1.sumNumbers(10, 4)}")
+        println("RESPONSE externalEcho: ${api1.externalEcho("ciao simo")}")
+        println("RESPONSE divide: ${api1.divide(5.0, 2.0)}")
+        println("RESPONSE summary: ${api1.summary()}")
         page.days_div.innerHTML = ""
 
-        val resp = api.New(SummaryRequest())
-        resp.payload.forEach { apiDay ->
+//        val resp = api.New(SummaryRequest())
+        api1.summary().forEach { apiDay ->
             page.days_div.appendChild(br())
             page.days_div.appendChild(div().also { it.innerHTML = apiDay.name })
             val allDayEvents = mutableListOf<EventShow>()
@@ -70,10 +82,5 @@ fun onload(e: Event) {
     }
 }
 
-suspend fun doRequest(apiName: String, serializedArguments: String): String {
-    val url = apiBaseUrl(apiName)
-    val resp = window.fetch("$url?$apiArgumentKeyName=$serializedArguments").await()
-    return resp.text().await()
-}
 
 

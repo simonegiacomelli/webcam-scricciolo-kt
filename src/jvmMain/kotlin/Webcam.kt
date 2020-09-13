@@ -28,10 +28,10 @@ class Webcam(private val root: File) {
 
     val fileMap by lazy { days.flatMap { it.events }.associateBy { it.firstFile.name } }
 
-    fun eventSummary(filename: String): ApiEventSummary {
+    fun eventFileList(filename: String): List<String> {
         val eventRoot = fileMap[filename] ?: error("event not found for file $filename")
         val list = eventRoot.root.list().filterNotNull().sorted()
-        return ApiEventSummary(list)
+        return list
     }
 
     fun deleteEvent(filename: String) {

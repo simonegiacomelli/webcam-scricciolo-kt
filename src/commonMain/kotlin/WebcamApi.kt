@@ -1,22 +1,9 @@
-import framework.HasResponse
+import framework.BasicRpc
 import kotlinx.serialization.Serializable
 
 const val apiArgumentKeyName = "serialized_request"
 fun apiBaseUrl(apiName: String) = "/api/$apiName"
 
-@Serializable
-data class LoginRequest(val username: String, val password: String) : HasResponse<LoginResponse>
-
-@Serializable
-data class LoginResponse(val success: Boolean, val message: String)
-
-
-@Serializable
-data class SummaryRequest(val ignore: Int = 0) : HasResponse<SummaryResponse>
-
-
-@Serializable
-data class SummaryResponse(val payload: List<ApiDay>) : HasResponse<SummaryResponse>
 
 @Serializable
 data class ApiEvent(val name: String, val time: String, val firstFileName: String, val dayFolder: String)
@@ -24,15 +11,14 @@ data class ApiEvent(val name: String, val time: String, val firstFileName: Strin
 @Serializable
 data class ApiDay(val name: String, val events: List<ApiEvent>)
 
-@Serializable
-data class EventRequest(val firstFileName: String) : HasResponse<ApiEventSummary>
+expect class Api1 : BasicRpc
 
-@Serializable
-data class ApiEventSummary(val files: List<String>)
+expect suspend fun Api1.divideByTwo(firstParam: Int): Double
+expect suspend fun Api1.divide(dividend: Double, divisor: Double): Double
+expect suspend fun Api1.sumNumbers(a: Int, b: Int): Int
+expect suspend fun Api1.externalEcho(s: String): String
 
-@Serializable
-data class ApiDeleteResponse(val ignore: Int = 0)
-
-@Serializable
-data class ApiDeleteEvent(val firstFileName: String) : HasResponse<ApiDeleteResponse>
+expect suspend fun Api1.summary(): List<ApiDay>
+expect suspend fun Api1.eventFileList(firstFileName: String) :List<String>
+expect suspend fun Api1.deleteEvent(firstFileName: String) :Boolean
 
