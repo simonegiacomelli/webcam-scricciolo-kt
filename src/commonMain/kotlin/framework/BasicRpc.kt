@@ -7,6 +7,7 @@ import kotlin.jvm.JvmName
 import kotlin.reflect.KSuspendFunction0
 import kotlin.reflect.KSuspendFunction1
 import kotlin.reflect.KSuspendFunction2
+import kotlin.reflect.KSuspendFunction3
 
 open class BasicRpc {
     val json = Json { allowStructuredMapKeys = true }
@@ -92,5 +93,62 @@ open class BasicRpc {
     open suspend fun clientRequest(apiName: String, serializedArguments: String): String {
         throw NotImplementedError()
     }
+
+}
+
+open class ServerRpc<T> {
+    val json = Json { allowStructuredMapKeys = true }
+
+    val handlers = mutableMapOf<String, suspend (T, String) -> String>()
+
+    inline fun <reified Req : Any, reified Res : Any>
+            setHandler(
+        apiName: String, crossinline handler: suspend (T, Req) -> Res
+    ) {
+        if (handlers.containsKey(apiName))
+            throw Exception("Api [$apiName] already defined. Is it an overloaded method?")
+        val h: suspend (T, String) -> String = { i, serialized_request ->
+            val request: Req = json.decodeFromString(serialized_request)
+            val response = handler(i, request)
+            val serialized_response = json.encodeToString(response)
+            serialized_response
+        }
+        handlers[apiName] = h
+    }
+
+
+    suspend fun serverDispatch(instance: T, apiName: String, serialized_request: String): String {
+        println("dispatch $apiName ser=$serialized_request")
+        val suspendFunction1 = handlers[apiName]
+        if (suspendFunction1 == null) {
+            val message = "Did you register [$apiName] api?"
+            println(message)
+            throw Exception(message)
+        }
+        println("susp=$suspendFunction1")
+        return suspendFunction1(instance, serialized_request)
+    }
+
+    @JvmName("registerServerHandler2")
+    inline fun <reified P1 : Any, reified P2 : Any, reified Res : Any, reified Req : Pair<P1, P2>>
+            registerServerHandler(func: KSuspendFunction3<T, P1, P2, Res>) {
+        val handler: suspend (T, Req) -> Res = { i, it -> func(i, it.first, it.second) }
+        setHandler(func.name, handler)
+    }
+
+    @JvmName("registerServerHandler1")
+    inline fun <reified Req : Any, reified Res : Any>
+            registerServerHandler(func: KSuspendFunction2<T, Req, Res>) {
+        val handler: suspend (T, Req) -> Res = { i, it -> func(i, it) }
+        setHandler(func.name, handler)
+    }
+
+    @JvmName("registerServerHandler0")
+    inline fun <reified Res : Any>
+            registerServerHandler(func: KSuspendFunction1<T, Res>) {
+        val handler: suspend (T, Unit) -> Res = { i, it -> func(i) }
+        setHandler(func.name, handler)
+    }
+
 
 }

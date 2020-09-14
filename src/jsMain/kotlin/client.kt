@@ -17,7 +17,7 @@ fun main() {
     window.onload = ::onload
 }
 
-val api1 = Api()
+val api1 = Api3()
 
 object page {
     val automaticNext: Boolean get() = automaticCheckBox.checked

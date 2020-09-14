@@ -3,7 +3,7 @@ import kotlinx.browser.window
 
 import kotlinx.coroutines.await
 
-actual class Api : BasicRpc() {
+actual class Api3 : BasicRpc() {
     override suspend fun clientRequest(apiName: String, serializedArguments: String): String {
 
         //val url = "/api1/$apiName"
@@ -16,16 +16,16 @@ actual class Api : BasicRpc() {
         throw Exception(response[1])
     }
 
+    actual suspend fun summary(): List<ApiDay> {
+        return clientInvoke(::summary)
+    }
 }
 
-actual suspend fun Api.summary(): List<ApiDay> {
-    return clientInvoke(::summary)
-}
 
-actual suspend fun Api.eventFileList(firstFileName: String): List<String> {
+actual suspend fun Api3.eventFileList(firstFileName: String): List<String> {
     return clientInvoke(::eventFileList, firstFileName)
 }
 
-actual suspend fun Api.deleteEvent(firstFileName: String) {
+actual suspend fun Api3.deleteEvent(firstFileName: String) {
     return clientInvoke(::deleteEvent, firstFileName)
 }

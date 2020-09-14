@@ -1,3 +1,4 @@
+import framework.ServerRpc
 import io.ktor.application.*
 import io.ktor.http.*
 import io.ktor.http.content.*
@@ -32,8 +33,8 @@ fun main(args: Array<String>) {
     }
 
     WebcamProvider.refreshOnceInAWhile()
-    val api1 = Api()
-    api1.serverRegisterApi()
+    val serverRpc = ServerRpc<Api3>()
+    serverRpc.serverRegisterApi()
 
     val port = 8090
     val host = "0.0.0.0"
@@ -71,7 +72,12 @@ fun main(args: Array<String>) {
                 try {
                     val apiName = call.parameters["api_name"]!!
                     log("api1 $apiName")
-                    val serializedResponse = api1.serverDispatch(apiName, call.request.queryParameters[apiArgumentKeyName]!!)
+                    val serializedResponse =
+                        serverRpc.serverDispatch(
+                            Api3(),
+                            apiName,
+                            call.request.queryParameters[apiArgumentKeyName]!!
+                        )
                     call.respondText("success=1\n\n$serializedResponse", ContentType.Text.Plain)
                 } catch (ex: Exception) {
                     val text = "success=0\n\n${ex.stackTraceToString()}"
