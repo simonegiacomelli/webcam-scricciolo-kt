@@ -1,12 +1,8 @@
-import framework.BasicRpc
+actual class Api3
 
-actual class Api3{
-    actual suspend fun summary(): List<ApiDay> {
-        return webcam.summary()
-    }
+actual suspend fun Api3.summary(): List<ApiDay> {
+    return webcam.summary()
 }
-
-
 
 actual suspend fun Api3.eventFileList(firstFileName: String): List<String> {
     return webcam.eventFileList(firstFileName)

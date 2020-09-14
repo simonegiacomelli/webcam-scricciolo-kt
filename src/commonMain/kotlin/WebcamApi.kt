@@ -1,4 +1,3 @@
-import framework.BasicRpc
 import framework.ServerRpc
 import kotlinx.serialization.Serializable
 
@@ -12,10 +11,9 @@ data class ApiEvent(val name: String, val time: String, val firstFileName: Strin
 @Serializable
 data class ApiDay(val name: String, val events: List<ApiEvent>)
 
-expect class Api3{
-     suspend fun summary(): List<ApiDay>
-}
+expect class Api3
 
+expect suspend fun Api3.summary(): List<ApiDay>
 expect suspend fun Api3.eventFileList(firstFileName: String): List<String>
 expect suspend fun Api3.deleteEvent(firstFileName: String)
 
