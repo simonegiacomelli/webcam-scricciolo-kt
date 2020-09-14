@@ -86,14 +86,26 @@ internal class WebcamTest {
     @Test
     fun api_deleteEvent() {
         val root = Temp.dir()
-//        println("file://$root")
         File(pathname).copyRecursively(root)
-        val folder = root.resolve("20200830/804")
-        assertTrue(folder.exists())
         val target = Webcam(root)
         target.deleteEvent("CAM1_804-20200830051609-01.jpg")
+
+        val folder = root.resolve("20200830/804")
+        assertTrue(folder.exists())
         assertFalse(folder.exists())
         val day = target.summary().first { it.name == "2020-08-30" }
         assertEquals(0, day.events.count { it.name == "804" })
+        assertTrue(root.resolve("20200830").exists())
+    }
+
+    @Test
+    fun api_deleteEvent_shouldRemoveDayFolderIfEmpty() {
+        val root = Temp.dir()
+        File(pathname).copyRecursively(root)
+        val target = Webcam(root)
+        target.deleteEvent("CAM1_174-20200825081345-01.jpg")
+
+        assertFalse(target.days.any { it.name == "20200825" },"Day object should not be there")
+        assertFalse(root.resolve("20200825").exists(),"Empty day folder should be deleted")
     }
 }

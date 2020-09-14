@@ -37,12 +37,18 @@ class Webcam(private val root: File) {
     fun deleteEvent(filename: String) {
         val event = fileMap[filename] ?: error("event not found for file $filename")
         event.root.deleteRecursively()
-        event.day.events.remove(event)
+        val day = event.day
+        day.events.remove(event)
+        if (day.events.isEmpty()) {
+            days.remove(day)
+            if (day.root.list().isEmpty())
+                day.root.delete()
+        }
     }
 
     constructor(pathname: String) : this(File(pathname))
 
-    val days = list(root).map { Day(it) }
+    val days = list(root).map { Day(it) }.toMutableList()
 
 }
 
