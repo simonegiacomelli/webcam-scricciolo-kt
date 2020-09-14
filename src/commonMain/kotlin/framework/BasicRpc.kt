@@ -29,7 +29,7 @@ open class BasicRpc {
     }
 
 
-    suspend fun dispatch(apiName: String, serialized_request: String): String {
+    suspend fun serverDispatch(apiName: String, serialized_request: String): String {
         println("dispatch $apiName ser=$serialized_request")
         val suspendFunction1 = handlers[apiName]
         if (suspendFunction1 == null) {
@@ -64,7 +64,7 @@ open class BasicRpc {
 
     suspend inline fun <reified Req, reified Res> cli(apiName: String, request: Req): Res {
         val ser = json.encodeToString(request)
-        val resStr = doRequest(apiName, ser)
+        val resStr = clientRequest(apiName, ser)
         val res = json.decodeFromString<Res>(resStr)
         return res
     }
@@ -89,7 +89,7 @@ open class BasicRpc {
     }
 
 
-    open suspend fun doRequest(apiName: String, serializedArguments: String): String {
+    open suspend fun clientRequest(apiName: String, serializedArguments: String): String {
         throw NotImplementedError()
     }
 

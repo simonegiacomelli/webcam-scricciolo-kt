@@ -4,7 +4,7 @@ import kotlinx.browser.window
 import kotlinx.coroutines.await
 
 actual class Api : BasicRpc() {
-    override suspend fun doRequest(apiName: String, serializedArguments: String): String {
+    override suspend fun clientRequest(apiName: String, serializedArguments: String): String {
 
         //val url = "/api1/$apiName"
         val url = apiBaseUrl(apiName)
