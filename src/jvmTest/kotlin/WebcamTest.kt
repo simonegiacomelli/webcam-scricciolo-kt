@@ -88,10 +88,10 @@ internal class WebcamTest {
         val root = Temp.dir()
         File(pathname).copyRecursively(root)
         val target = Webcam(root)
-        target.deleteEvent("CAM1_804-20200830051609-01.jpg")
-
         val folder = root.resolve("20200830/804")
         assertTrue(folder.exists())
+        target.deleteEvent("CAM1_804-20200830051609-01.jpg")
+
         assertFalse(folder.exists())
         val day = target.summary().first { it.name == "2020-08-30" }
         assertEquals(0, day.events.count { it.name == "804" })
