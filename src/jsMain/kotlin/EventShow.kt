@@ -2,7 +2,6 @@ import fragment.HotkeyWindow
 import kotlinx.browser.window
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
-import org.w3c.dom.HTMLButtonElement
 import kotlin.math.ceil
 
 class EventShow(

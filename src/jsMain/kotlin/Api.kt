@@ -26,6 +26,6 @@ actual suspend fun Api.eventFileList(firstFileName: String): List<String> {
     return clientInvoke(::eventFileList, firstFileName)
 }
 
-actual suspend fun Api.deleteEvent(firstFileName: String): Boolean {
+actual suspend fun Api.deleteEvent(firstFileName: String) {
     return clientInvoke(::deleteEvent, firstFileName)
 }
