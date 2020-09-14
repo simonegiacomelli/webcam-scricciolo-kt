@@ -33,34 +33,29 @@ object page {
     val nextBtn by lazy { button("nextBtn") }
     val resetBtn by lazy { button("resetBtn") }
     val deleteBtn by lazy { button("deleteBtn") }
-    val testBtn by lazy { button("testBtn") }
     val intervalMsec: Int get() = msecInput.value.toInt()
 }
 
 fun onload(e: Event) {
-//    val data = Data(Box(42), Box(Project("kotlinx.serialization", "Kotlin")))
-    val data = Pair("ciccio", "pasticcio")
-    println(Json.encodeToString(data))
 
-    val body = document.body!!
-    page.testBtn.onclickExt = {
-        console.log("testBtn")
-
-    }
     GlobalScope.launch {
 
         page.days_div.innerHTML = ""
 
         api1.summary().forEach { apiDay ->
             page.days_div.appendChild(br())
-            page.days_div.appendChild(div().also { it.innerHTML = apiDay.name })
+            val dayDiv = div().also { it.innerHTML = apiDay.name }
+            page.days_div.appendChild(dayDiv)
             val allDayEvents = mutableListOf<EventShow>()
             fun onDelete(ev: EventShow) {
                 println("Ondelete ${ev.event.time}")
                 val idx = allDayEvents.indexOf(ev)
                 if (idx == -1) return
                 allDayEvents.removeAt(idx)
-                if (allDayEvents.size == 0) return
+                if (allDayEvents.size == 0) {
+                    dayDiv.remove()
+                    return
+                }
                 val nextIdx = min(idx, allDayEvents.size - 1)
                 GlobalScope.async { allDayEvents[nextIdx].startClick() }
             }
