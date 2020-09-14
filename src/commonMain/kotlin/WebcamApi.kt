@@ -17,3 +17,8 @@ expect suspend fun Api.summary(): List<ApiDay>
 expect suspend fun Api.eventFileList(firstFileName: String): List<String>
 expect suspend fun Api.deleteEvent(firstFileName: String): Boolean
 
+fun Api.serverRegisterApi() {
+    registerServerHandler(::summary)
+    registerServerHandler(::eventFileList)
+    registerServerHandler(::deleteEvent)
+}

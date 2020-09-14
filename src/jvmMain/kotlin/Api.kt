@@ -14,10 +14,3 @@ actual suspend fun Api.deleteEvent(firstFileName: String): Boolean {
     webcam.deleteEvent(firstFileName)
     return true
 }
-
-fun Api.registerApi() {
-    println("registerApi")
-    registerServerHandler(::summary)
-    registerServerHandler(::eventFileList)
-    registerServerHandler(::deleteEvent)
-}

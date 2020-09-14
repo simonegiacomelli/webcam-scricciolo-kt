@@ -33,7 +33,7 @@ fun main(args: Array<String>) {
 
     WebcamProvider.refreshOnceInAWhile()
     val api1 = Api()
-    api1.registerApi()
+    api1.serverRegisterApi()
 
     val port = 8090
     val host = "0.0.0.0"
