@@ -33,8 +33,8 @@ fun main(args: Array<String>) {
     }
 
     WebcamProvider.refreshOnceInAWhile()
-    val serverRpc = ServerRpc<Api3>()
-    serverRpc.serverRegisterApi()
+    val api3Server = ServerRpc<Api3>()
+    api3Server.serverRegisterApi()
 
     val port = 8090
     val host = "0.0.0.0"
@@ -73,7 +73,7 @@ fun main(args: Array<String>) {
                     val apiName = call.parameters["api_name"]!!
                     log("api1 $apiName")
                     val serializedResponse =
-                        serverRpc.serverDispatch(
+                        api3Server.serverDispatch(
                             Api3(),
                             apiName,
                             call.request.queryParameters[apiArgumentKeyName]!!
