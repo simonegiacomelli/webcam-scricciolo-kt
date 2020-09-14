@@ -30,6 +30,7 @@ class EventShow(
             HotkeyWindow.add("RIGHT") { show?.nextClick(10) }
             HotkeyWindow.add("LEFT") { show?.nextClick(-10) }
             HotkeyWindow.add("D") { GlobalScope.async { show?.deleteEvent() } }
+            HotkeyWindow.add("R") { GlobalScope.async { show?.fromBeginning()} }
         }
     }
 
