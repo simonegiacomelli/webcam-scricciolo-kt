@@ -29,7 +29,7 @@ data class Event(val root: File, val day: Day) {
 }
 
 data class Day(val root: File) {
-    val events = list(root).map { Event(it, this) }.filter { it.valid }.toMutableList()
+    val events = list(root).map { Event(it, this) }.filter { it.valid }.sortedBy { it.time }.toMutableList()
     val name: String
         get() = root.name.let {
             it.substring(0, 4) + "-" + it.substring(4, 6) + "-" + it.substring(6, 8)

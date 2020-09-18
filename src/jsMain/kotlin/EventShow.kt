@@ -44,7 +44,7 @@ class EventShow(
 
     var allFiles: List<String> = emptyList()
 
-    suspend fun startClick() {
+    private suspend fun startClick() {
         allFiles = api1.eventFileList(event.firstFileName)
         highLightButton()
         fixAllButtonsVisibility()
@@ -61,12 +61,18 @@ class EventShow(
     }
 
     private fun updateFiles() {
+        val masks = allFiles.filter { it.endsWith("m.jpg") }.map { it.removeSuffix("m.jpg") }.toSet()
         files = when (page.maskSelected) {
             "no-mask" -> allFiles.filter { !it.endsWith("m.jpg") }
-            "only-mask" -> allFiles.filter { it.endsWith("m.jpg") }
-            "only-paired" -> {
-                val ok = allFiles.filter { it.endsWith("m.jpg") }.map { it.removeSuffix("m.jpg") }.toSet()
-                allFiles.filter { ok.contains(it.removeSuffix("m.jpg").removeSuffix(".jpg")) }
+            "mask" -> allFiles.filter { it.endsWith("m.jpg") }
+            "paired" -> {
+                allFiles.filter { masks.contains(it.removeSuffix("m.jpg").removeSuffix(".jpg")) }
+            }
+            "activ" -> {
+                allFiles.filter {
+                    !it.endsWith("m.jpg") &&
+                            masks.contains(it.removeSuffix(".jpg"))
+                }
             }
             "both" -> allFiles
             else -> throw Exception("Selezione maschera non riconosciuta ${page.maskSelected}")
@@ -129,6 +135,7 @@ class EventShow(
             val t = it.target
             if (t != null) {
                 val e = t as HTMLElement
+                highLightElement(e)
                 page.maskSelected = e.innerHTML
             }
             fromBeginning()
@@ -235,8 +242,12 @@ class EventShow(
     }
 
     private fun highLightButton() {
-        btn.classList.add("selected_btn")
-        btn.blur()
+        highLightElement(btn)
+    }
+
+    private fun highLightElement(element: HTMLElement) {
+        element.classList.add("selected_btn")
+        element.blur()
     }
 
 }
