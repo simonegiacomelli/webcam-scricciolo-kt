@@ -92,7 +92,7 @@ class EventShow(
         val fullName = "${event.dayFolder}/${event.name}/$filename"
         page.img.src = "/image?full_filename=$fullName"
         page.progressbar.value = ceil((imageIndex + 1).toDouble() / files.size * 100)
-        page.imgDiv.innerHTML = "${event.time} ${imageIndex + 1}/${files.size}"
+        page.imgDiv.innerHTML = "${day.name} ${event.time} ${imageIndex + 1}/${files.size}"
         debugLoad(fullName, idx)
         return true
     }
