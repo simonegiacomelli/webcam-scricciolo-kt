@@ -46,9 +46,6 @@ fun main(args: Array<String>) {
         }
         routing {
             get("/") {
-                call.respondRedirect("/index.html", permanent = false)
-            }
-            get("/index.html") {
                 if (!authorized(this)) {
                     call.respond(HttpStatusCode.Unauthorized, "not authorized")
                     return@get
