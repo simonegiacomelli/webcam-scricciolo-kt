@@ -45,14 +45,12 @@ class EventShow(
     var allFiles: List<String> = emptyList()
 
     suspend fun startClick() {
+        allFiles = api1.eventFileList(event.firstFileName)
         highLightButton()
         fixAllButtonsVisibility()
         updateGapInfo()
         setCurrentShowTo(this)
         setupEvents()
-
-//        allFiles = api.New(EventRequest(event.firstFileName)).files
-        allFiles = api1.eventFileList(event.firstFileName)
         fromBeginning()
     }
 
@@ -104,7 +102,7 @@ class EventShow(
         val fullName = "${event.dayFolder}/${event.name}/$filename"
         page.img.src = "/image?full_filename=$fullName"
         page.progressbar.value = ceil((imageIndex + 1).toDouble() / files.size * 100)
-        page.imgDiv.innerHTML = "${day.name} ${event.time} ${imageIndex + 1}/${files.size}"
+        page.imgDiv.innerHTML = "${day.name} ${imageIndex + 1}/${files.size} | all-files=${allFiles.size}"
         debugLoad(fullName, idx)
         return true
     }
