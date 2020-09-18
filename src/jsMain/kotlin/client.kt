@@ -1,15 +1,11 @@
 import kotlinx.browser.document
 import kotlinx.browser.window
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
 import org.w3c.dom.HTMLInputElement
 import org.w3c.dom.HTMLProgressElement
 import org.w3c.dom.HTMLSpanElement
 import org.w3c.dom.events.Event
-import kotlin.math.min
 
 
 fun main() {
@@ -41,32 +37,18 @@ fun onload(e: Event) {
     GlobalScope.launch {
 
         page.days_div.innerHTML = ""
+        val allEvents: MutableList<EventShow> = mutableListOf()
 
-        api1.summary().forEach { apiDay ->
-            page.days_div.appendChild(br())
-            val dayDiv = div().also { it.innerHTML = apiDay.name }
-            page.days_div.appendChild(dayDiv)
-            val allDayEvents = mutableListOf<EventShow>()
-            fun onDelete(ev: EventShow) {
-                println("Ondelete ${ev.event.time}")
-                val idx = allDayEvents.indexOf(ev)
-                if (idx == -1) return
-                allDayEvents.removeAt(idx)
-                if (allDayEvents.size == 0) {
-                    dayDiv.remove()
-                    return
-                }
-                val nextIdx = min(idx, allDayEvents.size - 1)
-                GlobalScope.async { allDayEvents[nextIdx].startClick() }
-            }
-            allDayEvents.addAll(apiDay.events.map { apiEvent ->
-                EventShow(apiDay, apiEvent) { onDelete(it) }
-            })
-            allDayEvents.forEach {
-                page.days_div.appendChild(it.btn)
-            }
+        val days = api1.summary()
 
+        allEvents.addAll(days.flatMap { day ->
+            day.events.map { EventShow(day, it,allEvents) }
+        })
+
+        allEvents.forEach {
+            page.days_div.appendChild(it.btn)
         }
+
 
     }
 }

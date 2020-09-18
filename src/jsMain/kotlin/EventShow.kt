@@ -3,12 +3,14 @@ import kotlinx.browser.window
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlin.math.ceil
+import kotlin.math.min
 
 class EventShow(
     val day: ApiDay,
     val event: ApiEvent,
-    val onDelete: (ev: EventShow) -> Unit
+    val allEvents: MutableList<EventShow>
 ) {
+
     val btn = button().also {
         it.innerHTML = event.time
         it.onclickExt = { startClick() }
@@ -30,7 +32,7 @@ class EventShow(
             HotkeyWindow.add("RIGHT") { show?.nextClick(10) }
             HotkeyWindow.add("LEFT") { show?.nextClick(-10) }
             HotkeyWindow.add("D") { GlobalScope.async { show?.deleteEvent() } }
-            HotkeyWindow.add("R") { GlobalScope.async { show?.fromBeginning()} }
+            HotkeyWindow.add("R") { GlobalScope.async { show?.fromBeginning() } }
         }
     }
 
@@ -42,6 +44,7 @@ class EventShow(
 
     suspend fun startClick() {
         highLightButton()
+        fixVisibility()
         setCurrentShowTo(this)
         setupEvents()
 
@@ -121,12 +124,25 @@ class EventShow(
         if (!window.confirm("Are you sure?"))
             return
         clearTimeout()
-//        api.New(ApiDeleteEvent(event.firstFileName))
         api1.deleteEvent(event.firstFileName)
         btn.remove()
-        onDelete(this)
+        onDelete()
     }
 
+    fun onDelete() {
+        val idx = allEvents.indexOf(this)
+        allEvents.removeAt(idx)
+        if (allEvents.isEmpty()) return
+        val nextIdx = min(idx, allEvents.size - 1)
+        GlobalScope.async { allEvents[nextIdx].startClick() }
+    }
+
+    fun fixVisibility() {
+        val idx = allEvents.indexOf(this)
+        allEvents.forEachIndexed { i, e ->
+            e.btn.visible = i >= idx - 2 && i <= idx + 2
+        }
+    }
 
     private fun setTimeout() {
         clearTimeout()

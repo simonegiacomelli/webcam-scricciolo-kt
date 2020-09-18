@@ -6,6 +6,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.Channel
 import org.w3c.dom.HTMLButtonElement
 import org.w3c.dom.HTMLDivElement
+import org.w3c.dom.HTMLElement
 import org.w3c.dom.HTMLImageElement
 
 var HTMLButtonElement.onclickExt: suspend () -> Unit
@@ -33,3 +34,10 @@ class LazyJs<T : Any>(private val inner: suspend () -> T) {
 
     }
 }
+
+
+var HTMLElement.visible: Boolean
+    get() = style.display != "none"
+    set(value) {
+        style.display = if (value) "" else "none"
+    }
