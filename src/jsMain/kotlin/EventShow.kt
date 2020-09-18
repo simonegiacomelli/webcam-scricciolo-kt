@@ -5,7 +5,6 @@ import kotlinx.coroutines.async
 import kotlinx.datetime.*
 import kotlin.math.ceil
 import kotlin.math.min
-import kotlin.time.Duration
 
 class EventShow(
     val day: ApiDay,
@@ -152,18 +151,20 @@ class EventShow(
         val idx = allEvents.indexOf(this)
         val info = StringBuilder()
         get(idx - 1)?.let {
-            val p = format(it.event.lastInstant, this.event.firstInstant)
-            info.append("$p <--")
+            val p = gap(it.event.lastInstant, this.event.firstInstant)
+            info.append("<-- $p")
         }
-        info.append(" this ")
+        val p = gap(event.firstInstant, event.lastInstant)
+        info.append("<br>--= $p<br>")
         get(idx + 1)?.let {
-            val p = format(this.event.lastInstant, it.event.firstInstant)
+            val p = gap(this.event.lastInstant, it.event.firstInstant)
             info.append("--> $p")
         }
+        info.append("<br>")
         page.gapInfo.innerHTML = info.toString()
     }
 
-    private fun format(a: String, b: String): String {
+    private fun gap(a: String, b: String): String {
         val s = a.toInstant()
         val e = b.toInstant()
         val d = s.periodUntil(e, TimeZone.UTC)
