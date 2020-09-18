@@ -2,8 +2,10 @@ import fragment.HotkeyWindow
 import kotlinx.browser.window
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
+import kotlinx.datetime.*
 import kotlin.math.ceil
 import kotlin.math.min
+import kotlin.time.Duration
 
 class EventShow(
     val day: ApiDay,
@@ -44,7 +46,8 @@ class EventShow(
 
     suspend fun startClick() {
         highLightButton()
-        fixVisibility()
+        fixAllButtonsVisibility()
+        updateGapInfo()
         setCurrentShowTo(this)
         setupEvents()
 
@@ -129,7 +132,7 @@ class EventShow(
         onDelete()
     }
 
-    fun onDelete() {
+    private fun onDelete() {
         val idx = allEvents.indexOf(this)
         allEvents.removeAt(idx)
         if (allEvents.isEmpty()) return
@@ -137,12 +140,66 @@ class EventShow(
         GlobalScope.async { allEvents[nextIdx].startClick() }
     }
 
-    fun fixVisibility() {
+    private fun fixAllButtonsVisibility() {
         val idx = allEvents.indexOf(this)
         allEvents.forEachIndexed { i, e ->
             e.btn.visible = i >= idx - 2 && i <= idx + 2
         }
     }
+
+
+    private fun updateGapInfo() {
+        val idx = allEvents.indexOf(this)
+        val info = StringBuilder()
+        get(idx - 1)?.let {
+            val p = format(it.event.lastInstant, this.event.firstInstant)
+            info.append("$p <--")
+        }
+        info.append(" this ")
+        get(idx + 1)?.let {
+            val p = format(this.event.lastInstant, it.event.firstInstant)
+            info.append("--> $p")
+        }
+        page.gapInfo.innerHTML = info.toString()
+    }
+
+    private fun format(a: String, b: String): String {
+        val s = a.toInstant()
+        val e = b.toInstant()
+        val d = s.periodUntil(e, TimeZone.UTC)
+        val res = d.toString()
+        val sb = mutableListOf<String>()
+
+        fun append(element: Int, spec: String): MutableList<String> {
+            val s2 = if (element > 1) "${spec}s" else spec
+            sb.add("$element $s2")
+            return sb
+        }
+        d.apply {
+            fun allNotPositive() =
+                years <= 0 && months <= 0 && days <= 0 && hours <= 0 && minutes <= 0 && seconds <= 0 && nanoseconds <= 0 &&
+                        (years or months or days or hours or minutes != 0 || seconds or nanoseconds != 0L)
+            sb.apply {
+
+                val sign = if (allNotPositive()) {
+                    -1
+                } else 1
+                if (years != 0) append(years * sign, "year")
+                if (months != 0) append(months * sign, "month")
+                if (days != 0) append(days * sign, "day")
+                if (hours != 0) append(hours * sign, "hour")
+                if (minutes != 0) append(minutes * sign, "minute")
+                if (seconds != 0L) append(seconds.toInt() * sign, "second")
+                if (sb.size == 0) sb.add("0 seconds")
+            }
+        }
+        return sb.joinToString(", ")
+    }
+
+    private fun get(i: Int): EventShow? {
+        return if (i < allEvents.size && i > -1) allEvents[i] else null
+    }
+
 
     private fun setTimeout() {
         clearTimeout()
@@ -167,3 +224,4 @@ class EventShow(
     }
 
 }
+

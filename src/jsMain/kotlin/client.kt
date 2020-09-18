@@ -25,9 +25,10 @@ object page {
     val automaticCheckBox by lazy { document.getElementById("automatic_tag") as HTMLInputElement }
     private val msecInput by lazy { document.getElementById("automatic_msec") as HTMLInputElement }
     val maskCheckBox by lazy { document.getElementById("mask_images") as HTMLInputElement }
+    val gapInfo by lazy { div("gapInfo") }
+    val resetBtn by lazy { button("resetBtn") }
     val prevBtn by lazy { button("prevBtn") }
     val nextBtn by lazy { button("nextBtn") }
-    val resetBtn by lazy { button("resetBtn") }
     val deleteBtn by lazy { button("deleteBtn") }
     val intervalMsec: Int get() = msecInput.value.toInt()
 }
@@ -42,7 +43,7 @@ fun onload(e: Event) {
         val days = api1.summary()
 
         allEvents.addAll(days.flatMap { day ->
-            day.events.map { EventShow(day, it,allEvents) }
+            day.events.map { EventShow(day, it, allEvents) }
         })
 
         allEvents.forEach {
