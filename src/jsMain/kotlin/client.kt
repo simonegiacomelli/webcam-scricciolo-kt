@@ -18,8 +18,8 @@ val api1 = Api3()
 object page {
     val automaticNext: Boolean get() = automaticCheckBox.checked
     val maskEnabled: Boolean get() = maskCheckBox.checked
-    val img by lazy { img("img_tag") }
-    val imgDiv by lazy { document.getElementById("img_div") as HTMLSpanElement }
+    val img by lazy { img("imgTag") }
+    val imgDiv by lazy { document.getElementById("imgDiv") as HTMLSpanElement }
     val days_div by lazy { div("days_div") }
     val progressbar by lazy { document.getElementById("progress_tag") as HTMLProgressElement }
     val automaticCheckBox by lazy { document.getElementById("automatic_tag") as HTMLInputElement }
