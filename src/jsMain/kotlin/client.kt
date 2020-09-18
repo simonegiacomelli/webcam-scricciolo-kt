@@ -16,15 +16,15 @@ fun main() {
 val api1 = Api3()
 
 object page {
+    var maskSelected: String = "no-mask"
     val automaticNext: Boolean get() = automaticCheckBox.checked
-    val maskEnabled: Boolean get() = maskCheckBox.checked
     val img by lazy { img("imgTag") }
     val imgDiv by lazy { document.getElementById("imgDiv") as HTMLSpanElement }
     val days_div by lazy { div("days_div") }
     val progressbar by lazy { document.getElementById("progress_tag") as HTMLProgressElement }
     val automaticCheckBox by lazy { document.getElementById("automatic_tag") as HTMLInputElement }
     private val msecInput by lazy { document.getElementById("automatic_msec") as HTMLInputElement }
-    val maskCheckBox by lazy { document.getElementById("mask_images") as HTMLInputElement }
+    val maskImages by lazy { div("maskImages") }
     val gapInfo by lazy { div("gapInfo") }
     val resetBtn by lazy { button("resetBtn") }
     val prevBtn by lazy { button("prevBtn") }

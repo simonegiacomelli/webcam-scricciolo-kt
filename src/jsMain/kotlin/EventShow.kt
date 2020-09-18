@@ -3,6 +3,7 @@ import kotlinx.browser.window
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.datetime.*
+import org.w3c.dom.HTMLElement
 import kotlin.math.ceil
 import kotlin.math.min
 
@@ -62,7 +63,16 @@ class EventShow(
     }
 
     private fun updateFiles() {
-        files = if (page.maskEnabled) allFiles else allFiles.filter { !it.endsWith("m.jpg") }
+        files = when (page.maskSelected) {
+            "no-mask" -> allFiles.filter { !it.endsWith("m.jpg") }
+            "only-mask" -> allFiles.filter { it.endsWith("m.jpg") }
+            "only-paired" -> {
+                val ok = allFiles.filter { it.endsWith("m.jpg") }.map { it.removeSuffix("m.jpg") }.toSet()
+                allFiles.filter { ok.contains(it.removeSuffix("m.jpg").removeSuffix(".jpg")) }
+            }
+            "both" -> allFiles
+            else -> throw Exception("Selezione maschera non riconosciuta ${page.maskSelected}")
+        }
     }
 
     fun tick() {
@@ -117,7 +127,14 @@ class EventShow(
 
         page.prevBtn.onclick = { showImage(-1) }
         page.nextBtn.onclick = { nextClick() }
-        page.maskCheckBox.onclick = { fromBeginning() }
+        page.maskImages.onclick = {
+            val t = it.target
+            if (t != null) {
+                val e = t as HTMLElement
+                page.maskSelected = e.innerHTML
+            }
+            fromBeginning()
+        }
         page.resetBtn.onclick = { fromBeginning() }
         page.deleteBtn.onclickExt = { deleteEvent() }
     }
