@@ -1,14 +1,16 @@
 import java.io.File
 
-data class Event(val root: File, val day: Day) {
+data class Event(private val root: File, val day: Day) {
 
     private val ff: File?
     private val lf: File?
-
+    val fileList:List<File>
     init {
-        val l = root.listFiles().filterNotNull().sorted()
-        ff = l.firstOrNull()
-        lf = l.lastOrNull()
+        fileList = root.listFiles().filterNotNull()
+            .filter { !it.name.startsWith(".") }
+            .sorted()
+        ff = fileList.firstOrNull()
+        lf = fileList.lastOrNull()
     }
 
     val firstFile: File get() = ff!!
@@ -25,6 +27,10 @@ data class Event(val root: File, val day: Day) {
             ImageName(firstFile.name).instant.toString(),
             ImageName(lastFile.name).instant.toString()
         )
+    }
+
+    fun deleteRecursively() {
+        root.deleteRecursively()
     }
 }
 
@@ -48,13 +54,13 @@ class Webcam(private val root: File) {
 
     fun eventFileList(filename: String): List<String> {
         val eventRoot = fileMap[filename] ?: error("event not found for file $filename")
-        val list = eventRoot.root.list().filterNotNull().sorted()
+        val list = eventRoot.fileList.map { it.name }
         return list
     }
 
     fun deleteEvent(filename: String) {
         val event = fileMap[filename] ?: error("event not found for file $filename")
-        event.root.deleteRecursively()
+        event.deleteRecursively()
         val day = event.day
         day.events.remove(event)
         if (day.events.isEmpty()) {
@@ -70,4 +76,4 @@ class Webcam(private val root: File) {
 
 }
 
-private fun list(file: File) = file.listFiles().filterNotNull().sorted()
+private fun list(file: File) = file.listFiles().filterNotNull().filter { !it.name.startsWith(".") }.sorted()
